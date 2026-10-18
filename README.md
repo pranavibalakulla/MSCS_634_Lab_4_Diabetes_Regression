@@ -28,6 +28,7 @@ The dataset is divided into training and testing sets to evaluate how well the m
 - Pandas
 - NumPy
 - Matplotlib
+- Seaborn
 - Scikit-learn
 
 ## Models Implemented
