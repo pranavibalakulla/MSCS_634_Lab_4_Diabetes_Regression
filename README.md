@@ -65,11 +65,25 @@ Lower MAE, MSE, and RMSE values indicate better predictive performance, while a 
 
 ## Results and Findings
 
-Based on the experimental results, Lasso Regression with alpha = 1 achieved the lowest test RMSE of **53.1467** and the highest test R² of **0.4669** among the reported models. Multiple Linear Regression achieved the lowest test MAE of **42.7941**, while Ridge Regression with alpha = 10 achieved a test RMSE of **53.6263** and an R² of **0.4572**.
+Based on the experimental results, Lasso Regression with alpha = 1 achieved the lowest test RMSE of **53.1467** and the highest test R² of **0.4669** among the reported models. Multiple Linear Regression achieved the lowest test MAE of **42.7941**, while Ridge Regression with alpha = 50 achieved a test RMSE of **53.4388** and an R² of **0.4610**.
+
+Regularization strength mattered. Ridge shrank all 10 coefficients as alpha increased but never removed any, while Lasso dropped `s2` at alpha = 1, kept only 4 features at alpha = 10, and removed every feature at alpha = 50 and 100, which reduced it to predicting the mean (test R² ≈ −0.01). This shows both sides of the trade-off: a small amount of regularization improved generalization, and too much caused underfitting.
 
 Polynomial Regression performed less effectively than the linear and regularized models. The degree-10 polynomial model recorded the highest test RMSE of **65.6927** and an R² of **0.1855**. The increase in testing error at higher polynomial complexity suggests that the model may be overfitting the training data.
 
 Overall, Lasso Regression with alpha = 1 was the strongest model based on RMSE and R², while Multiple Linear Regression performed best according to MAE. These results demonstrate the importance of comparing multiple evaluation metrics rather than relying on a single measure.
+
+## Challenges and Decisions
+
+- **No data cleaning required:** The dataset has no missing values or duplicate rows, and its features are already mean-centered and scaled. A median imputer was still kept in each pipeline as a safeguard, and the notebook documents the checks performed.
+- **Choice of single feature:** BMI was used for Simple Linear and Polynomial Regression because it has the strongest correlation with the target (0.59).
+- **Consistent train/test splits:** Every model uses an 80/20 split with `random_state=42`, so all models are evaluated on the same 89 test observations and their metrics can be compared directly.
+- **Feature scaling:** `StandardScaler` was added to the Polynomial, Ridge, and Lasso pipelines. Polynomial terms have very different magnitudes, and Ridge and Lasso penalize coefficients by size, so scaling keeps the penalty fair across features.
+- **Lasso convergence:** `max_iter` was raised to 50,000 so the Lasso solver converges at every alpha value.
+- **Alpha range:** The alpha grid was extended to 50 and 100 after the best Ridge alpha initially landed at the edge of the grid (10). With the wider grid, the best Ridge alpha (50) lies inside the range tested.
+- **Polynomial scope:** Polynomial Regression was applied to BMI only so the effect of increasing degree is easy to visualize. As a result, its comparison with multiple regression reflects both the number of features and model flexibility.
+- **Limitation – choosing alpha:** The best alpha was selected by comparing test-set results, which makes the reported test scores slightly optimistic. Cross-validation on the training data (for example, `RidgeCV` or `LassoCV`) would be a more rigorous approach.
+- **Metric disagreement:** Lasso had the best RMSE and R², while Multiple Linear Regression had the best MAE, so the results are reported per metric rather than naming one model best in every respect.
 
 ## Visualizations
 
@@ -98,5 +112,6 @@ This lab demonstrates how regression techniques can be applied to a real-world h
 
 ## Author
 
+**Name:** Pranavi Balakulla  
 **Course:** MSCS 634  
 **Lab:** Lab 4 – Regression Model Comparison
